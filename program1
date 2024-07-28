@@ -1,0 +1,302 @@
+import java.util.ArrayList;
+import java.util.List;
+
+// Subject
+class Subject {
+    private List<Observer> observers = new ArrayList<>();
+    private int state;
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
+        notifyAllObservers();
+    }
+
+    public void attach(Observer observer) {
+        observers.add(observer);
+    }
+
+    public void notifyAllObservers() {
+        for (Observer observer : observers) {
+            observer.update();
+        }
+    }
+}
+
+// Observer
+abstract class Observer {
+    protected Subject subject;
+    public abstract void update();
+}
+
+// Concrete Observer
+class ConcreteObserver extends Observer {
+
+    public ConcreteObserver(Subject subject) {
+        this.subject = subject;
+        this.subject.attach(this);
+    }
+
+    @Override
+    public void update() {
+        System.out.println("State changed to: " + subject.getState());
+    }
+}
+
+public class ObserverPatternDemo {
+    public static void main(String[] args) {
+        Subject subject = new Subject();
+
+        new ConcreteObserver(subject);
+
+        subject.setState(10);
+        subject.setState(20);
+    }
+}
+// Strategy interface
+interface Strategy {
+    int doOperation(int num1, int num2);
+}
+
+// Concrete strategies
+class Addition implements Strategy {
+    @Override
+    public int doOperation(int num1, int num2) {
+        return num1 + num2;
+    }
+}
+
+class Subtraction implements Strategy {
+    @Override
+    public int doOperation(int num1, int num2) {
+        return num1 - num2;
+    }
+}
+
+// Context
+class Context {
+    private Strategy strategy;
+
+    public Context(Strategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public int executeStrategy(int num1, int num2) {
+        return strategy.doOperation(num1, num2);
+    }
+}
+
+public class StrategyPatternDemo {
+    public static void main(String[] args) {
+        Context context = new Context(new Addition());
+        System.out.println("10 + 5 = " + context.executeStrategy(10, 5));
+
+        context = new Context(new Subtraction());
+        System.out.println("10 - 5 = " + context.executeStrategy(10, 5));
+    }
+}
+class Singleton {
+    private static Singleton instance;
+
+    private Singleton() {}
+
+    public static Singleton getInstance() {
+        if (instance == null) {
+            instance = new Singleton();
+        }
+        return instance;
+    }
+
+    public void showMessage() {
+        System.out.println("Hello from Singleton!");
+    }
+}
+
+public class SingletonPatternDemo {
+    public static void main(String[] args) {
+        Singleton singleton = Singleton.getInstance();
+        singleton.showMessage();
+    }
+}
+// Product
+interface Shape {
+    void draw();
+}
+
+// Concrete products
+class Circle implements Shape {
+    @Override
+    public void draw() {
+        System.out.println("Drawing a Circle");
+    }
+}
+
+class Square implements Shape {
+    @Override
+    public void draw() {
+        System.out.println("Drawing a Square");
+    }
+}
+
+// Factory
+class ShapeFactory {
+    public Shape getShape(String shapeType) {
+        if (shapeType == null) {
+            return null;
+        }
+        if (shapeType.equalsIgnoreCase("CIRCLE")) {
+            return new Circle();
+        } else if (shapeType.equalsIgnoreCase("SQUARE")) {
+            return new Square();
+        }
+        return null;
+    }
+}
+
+public class FactoryPatternDemo {
+    public static void main(String[] args) {
+        ShapeFactory shapeFactory = new ShapeFactory();
+
+        Shape shape1 = shapeFactory.getShape("CIRCLE");
+        shape1.draw();
+
+        Shape shape2 = shapeFactory.getShape("SQUARE");
+        shape2.draw();
+    }
+}
+// Target interface
+interface MediaPlayer {
+    void play(String audioType, String fileName);
+}
+
+// Adaptee
+class AdvancedMediaPlayer {
+    public void playVlc(String fileName) {
+        System.out.println("Playing vlc file. Name: " + fileName);
+    }
+
+    public void playMp4(String fileName) {
+        System.out.println("Playing mp4 file. Name: " + fileName);
+    }
+}
+
+// Adapter
+class MediaAdapter implements MediaPlayer {
+    AdvancedMediaPlayer advancedMusicPlayer;
+
+    public MediaAdapter(String audioType) {
+        if (audioType.equalsIgnoreCase("vlc")) {
+            advancedMusicPlayer = new AdvancedMediaPlayer();
+        } else if (audioType.equalsIgnoreCase("mp4")) {
+            advancedMusicPlayer = new AdvancedMediaPlayer();
+        }
+    }
+
+    @Override
+    public void play(String audioType, String fileName) {
+        if (audioType.equalsIgnoreCase("vlc")) {
+            advancedMusicPlayer.playVlc(fileName);
+        } else if (audioType.equalsIgnoreCase("mp4")) {
+            advancedMusicPlayer.playMp4(fileName);
+        }
+    }
+}
+
+// Client
+class AudioPlayer implements MediaPlayer {
+    MediaAdapter mediaAdapter;
+
+    @Override
+    public void play(String audioType, String fileName) {
+        if (audioType.equalsIgnoreCase("mp3")) {
+            System.out.println("Playing mp3 file. Name: " + fileName);
+        } else if (audioType.equalsIgnoreCase("vlc") || audioType.equalsIgnoreCase("mp4")) {
+            mediaAdapter = new MediaAdapter(audioType);
+            mediaAdapter.play(audioType, fileName);
+        } else {
+            System.out.println("Invalid media. " + audioType + " format not supported");
+        }
+    }
+}
+
+public class AdapterPatternDemo {
+    public static void main(String[] args) {
+        AudioPlayer audioPlayer = new AudioPlayer();
+
+        audioPlayer.play("mp3", "beyond the horizon.mp3");
+        audioPlayer.play("mp4", "alone.mp4");
+        audioPlayer.play("vlc", "far far away.vlc");
+        audioPlayer.play("avi", "mind me.avi");
+    }
+}
+// Component
+interface Shape {
+    void draw();
+}
+
+// Concrete Component
+class Rectangle implements Shape {
+    @Override
+    public void draw() {
+        System.out.println("Shape: Rectangle");
+    }
+}
+
+class Circle implements Shape {
+    @Override
+    public void draw() {
+        System.out.println("Shape: Circle");
+    }
+}
+
+// Decorator
+abstract class ShapeDecorator implements Shape {
+    protected Shape decoratedShape;
+
+    public ShapeDecorator(Shape decoratedShape) {
+        this.decoratedShape = decoratedShape;
+    }
+
+    public void draw() {
+        decoratedShape.draw();
+    }
+}
+
+// Concrete Decorator
+class RedShapeDecorator extends ShapeDecorator {
+
+    public RedShapeDecorator(Shape decoratedShape) {
+        super(decoratedShape);
+    }
+
+    @Override
+    public void draw() {
+        decoratedShape.draw();
+        setRedBorder(decoratedShape);
+    }
+
+    private void setRedBorder(Shape decoratedShape) {
+        System.out.println("Border Color: Red");
+    }
+}
+
+public class DecoratorPatternDemo {
+    public static void main(String[] args) {
+        Shape circle = new Circle();
+
+        Shape redCircle = new RedShapeDecorator(new Circle());
+        Shape redRectangle = new RedShapeDecorator(new Rectangle());
+
+        System.out.println("Circle with normal border");
+        circle.draw();
+
+        System.out.println("\nCircle with red border");
+        redCircle.draw();
+
+        System.out.println("\nRectangle with red border");
+        redRectangle.draw();
+    }
+}
